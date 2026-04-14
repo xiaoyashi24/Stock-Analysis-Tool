@@ -41,6 +41,10 @@ How can users quickly evaluate the monthly performance and volatility of a selec
 - summary statistics
 - charts
 - exported Excel file
+## Files
 
+- `Analysis Tool.ipynb`: main notebook for the interactive stock analysis tool
+- `Analysis for 000001.ipynb`: example analysis for stock code 000001
+- `README.md`: project description and usage instructions
 ## Conclusion
 This project demonstrates how Python can be used to build a simple interactive stock analysis tool based on financial market data.
