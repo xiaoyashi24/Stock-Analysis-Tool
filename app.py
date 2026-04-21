@@ -9,14 +9,50 @@ from io import BytesIO
 # -----------------------------
 st.set_page_config(page_title="Monthly Stock Analysis Tool", layout="wide")
 
-st.title("Monthly Stock Analysis Tool")
-st.markdown("This app retrieves monthly stock data from WRDS CSMAR and provides descriptive analysis, visualisations, and exportable results.")
+st.title("📊 Monthly Stock Analysis Tool")
+
+st.markdown("""
+This application is designed to retrieve and analyse **monthly stock data** from the **WRDS CSMAR database**.
+
+### What this tool does
+The app helps users:
+- connect to WRDS using their own WRDS username
+- retrieve monthly stock trading data from **CSMAR**
+- clean and organise the selected stock data
+- calculate descriptive statistics for return and price
+- visualise return trends, cumulative performance, and closing prices
+- generate simple analytical insights
+- export the processed dataset to Excel
+
+### Data used
+The app queries the following monthly stock variables from `csmar.trd_mnth`:
+- `stkcd` : stock code
+- `trdmnt` : trading month
+- `mclsprc` : monthly closing price
+- `mretwd` : monthly return with cash dividend reinvested
+- `mretnd` : monthly return without cash dividend reinvested
+- `mnshrtrd` : monthly trading volume
+- `mnvaltrd` : monthly trading value
+
+### How to use
+1. Enter your **WRDS username**
+2. Enter a **stock code**
+3. Enter a **start month** in `YYYYMM` format
+4. Click **Run Analysis**
+
+> Example stock code: `000001`
+""")
+
+st.markdown("---")
 
 # -----------------------------
 # User inputs
 # -----------------------------
 st.sidebar.header("Input Parameters")
+
+wrds_username = st.sidebar.text_input("Enter WRDS username", value="")
 stock_code = st.sidebar.text_input("Enter stock code", value="000001")
+
 start_month = st.sidebar.number_input(
     "Enter start month (YYYYMM)",
     min_value=190001,
@@ -26,6 +62,15 @@ start_month = st.sidebar.number_input(
 )
 
 run_button = st.sidebar.button("Run Analysis")
+
+st.sidebar.markdown("---")
+st.sidebar.markdown("""
+**Notes**
+- Data source: WRDS CSMAR
+- Frequency: Monthly
+- Date format: YYYYMM
+- Output: summary statistics, charts, processed dataset, Excel export
+""")
 
 # -----------------------------
 # Excel export helper
@@ -40,6 +85,10 @@ def to_excel_bytes(df):
 # Main analysis
 # -----------------------------
 if run_button:
+    if wrds_username.strip() == "":
+        st.warning("Please enter your WRDS username.")
+        st.stop()
+
     if stock_code.strip() == "":
         st.warning("Please enter a valid stock code.")
         st.stop()
@@ -47,7 +96,7 @@ if run_button:
     # Connect to WRDS
     try:
         with st.spinner("Connecting to WRDS..."):
-            db = wrds.Connection(wrds_username="xiaoyashi24")
+            db = wrds.Connection(wrds_username=wrds_username)
     except Exception as e:
         st.error(f"WRDS connection failed: {e}")
         st.stop()
@@ -261,5 +310,6 @@ if run_button:
         file_name=f"{stock_code}_monthly_stock_analysis.xlsx",
         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
+
 else:
     st.info("Please enter parameters in the left sidebar and click 'Run Analysis'.")
